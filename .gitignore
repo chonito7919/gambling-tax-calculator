@@ -1,0 +1,73 @@
+# Build directories
+build/
+build-linux/
+build-windows/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+!toolchain-windows.cmake
+
+# Compiled binaries
+*.exe
+*.out
+*.app
+gambling-calc
+gambling-calc.exe
+
+# Object files
+*.o
+*.obj
+*.lo
+*.slo
+
+# Compiled libraries
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Session data files (user may want to keep local)
+*.csv
+gambling_sessions.csv
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+
+# Config backups (keep original config/)
+config/*.bak
+config/*~
+
+# Compiled Python files (if adding scripts)
+__pycache__/
+*.py[cod]
+
+# Package files
+*.deb
+*.rpm
+*.msi
+*.dmg
+
+# Test outputs
+test_results/
+coverage/
+
+# Documentation builds
+docs/_build/
+docs/html/
+docs/latex/
