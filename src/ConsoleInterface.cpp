@@ -5,19 +5,23 @@
 #include <sstream>
 #include <limits>
 
-ConsoleInterface::ConsoleInterface() : calculator(false) {
+ConsoleInterface::ConsoleInterface() : calculator(false)
+{
 }
 
-void ConsoleInterface::run() {
+void ConsoleInterface::run()
+{
     showHeader("GAMBLING TAX CALCULATOR");
     std::cout << "Welcome! This calculator helps track gambling wins/losses for tax purposes.\n\n";
     
     bool running = true;
-    while (running) {
+    while (running)
+    {
         showMainMenu();
         int choice = getUserChoice();
         
-        switch (choice) {
+        switch (choice)
+        {
             case 1:
                 addSingleSession();
                 break;
@@ -60,7 +64,8 @@ void ConsoleInterface::run() {
     }
 }
 
-void ConsoleInterface::showMainMenu() {
+void ConsoleInterface::showMainMenu()
+{
     clearScreen();
     showHeader("MAIN MENU");
     std::cout << "Sessions loaded: " << sessions.size() << "\n\n";
@@ -79,9 +84,11 @@ void ConsoleInterface::showMainMenu() {
     std::cout << "Choose an option: ";
 }
 
-int ConsoleInterface::getUserChoice() {
+int ConsoleInterface::getUserChoice()
+{
     int choice;
-    while (!(std::cin >> choice)) {
+    while (!(std::cin >> choice))
+    {
         std::cout << "Please enter a valid number: ";
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -90,11 +97,13 @@ int ConsoleInterface::getUserChoice() {
     return choice;
 }
 
-void ConsoleInterface::addSingleSession() {
+void ConsoleInterface::addSingleSession()
+{
     showHeader("ADD GAMBLING SESSION");
     
     std::string date = getStringInput("Date (YYYY-MM-DD) [Enter for today]: ");
-    if (date.empty()) {
+    if (date.empty())
+    {
         date = getCurrentDate();
     }
     
@@ -108,9 +117,11 @@ void ConsoleInterface::addSingleSession() {
     bool taxWithheld = false;
     double withheldAmount = 0.0;
     
-    if (cashOut > buyIn) {
+    if (cashOut > buyIn)
+    {
         taxWithheld = getBoolInput("Was tax withheld? (y/n): ");
-        if (taxWithheld) {
+        if (taxWithheld)
+        {
             withheldAmount = getDoubleInput("Amount withheld: $");
         }
     }
@@ -129,12 +140,14 @@ void ConsoleInterface::addSingleSession() {
               << (session.isWin() ? "WIN" : session.isLoss() ? "LOSS" : "BREAK EVEN") << ")\n";
 }
 
-void ConsoleInterface::addBulkLosingSessions() {
+void ConsoleInterface::addBulkLosingSessions()
+{
     showHeader("BULK ADD LOSING TICKETS");
     std::cout << "Quick entry for multiple losing tickets/sessions\n\n";
     
     std::string defaultDate = getStringInput("Default date (YYYY-MM-DD) [Enter for today]: ");
-    if (defaultDate.empty()) {
+    if (defaultDate.empty())
+    {
         defaultDate = getCurrentDate();
     }
     
@@ -145,7 +158,8 @@ void ConsoleInterface::addBulkLosingSessions() {
     std::cout << "\nNow enter losing amounts (Enter 0 to finish):\n";
     
     int count = 0;
-    while (true) {
+    while (true)
+    {
         double amount = getDoubleInput("Losing ticket amount $");
         if (amount <= 0) break;
         
@@ -162,30 +176,37 @@ void ConsoleInterface::addBulkLosingSessions() {
     std::cout << "\n✅ Added " << count << " losing sessions totaling $";
     
     double totalLosses = 0;
-    for (int i = sessions.size() - count; i < sessions.size(); i++) {
+    for (int i = sessions.size() - count; i < sessions.size(); i++)
+    {
         totalLosses += std::abs(sessions[i].getNetResult());
     }
     
     std::cout << std::fixed << std::setprecision(2) << totalLosses << "\n";
 }
 
-void ConsoleInterface::viewAllSessions() {
+void ConsoleInterface::viewAllSessions()
+{
     showHeader("ALL GAMBLING SESSIONS");
     
-    if (sessions.empty()) {
+    if (sessions.empty())
+    {
         std::cout << "No sessions recorded yet.\n";
         return;
     }
     
     double totalWinnings = 0, totalLosses = 0;
     
-    for (size_t i = 0; i < sessions.size(); i++) {
+    for (size_t i = 0; i < sessions.size(); i++)
+    {
         std::cout << "\n--- Session " << (i + 1) << " ---\n";
         std::cout << sessions[i].toString();
         
-        if (sessions[i].isWin()) {
+        if (sessions[i].isWin())
+        {
             totalWinnings += sessions[i].getNetResult();
-        } else if (sessions[i].isLoss()) {
+        }
+        else if (sessions[i].isLoss())
+        {
             totalLosses += std::abs(sessions[i].getNetResult());
         }
     }
@@ -198,10 +219,12 @@ void ConsoleInterface::viewAllSessions() {
     std::cout << "Net Result: $" << (totalWinnings - totalLosses) << "\n";
 }
 
-void ConsoleInterface::calculateAndShowTaxes() {
+void ConsoleInterface::calculateAndShowTaxes()
+{
     showHeader("TAX CALCULATION");
     
-    if (sessions.empty()) {
+    if (sessions.empty())
+    {
         std::cout << "No sessions to calculate. Add some gambling sessions first.\n";
         return;
     }
@@ -210,22 +233,27 @@ void ConsoleInterface::calculateAndShowTaxes() {
     std::cout << calculator.generateTaxReport(summary) << "\n";
     
     // Show any important reminders
-    if (!summary.documentationReminders.empty()) {
+    if (!summary.documentationReminders.empty())
+    {
         std::cout << "\nIMPORTANT REMINDERS:\n";
-        for (const auto& reminder : summary.documentationReminders) {
+        for (const auto& reminder : summary.documentationReminders)
+        {
             std::cout << "• " << reminder << "\n";
         }
     }
 }
 
-void ConsoleInterface::showDocumentationReminders() {
+void ConsoleInterface::showDocumentationReminders()
+{
     showHeader("DOCUMENTATION CHECKLIST");
     std::cout << calculator.generateDocumentationChecklist() << "\n";
 }
 
-void ConsoleInterface::saveToFile(const std::string& filename) {
+void ConsoleInterface::saveToFile(const std::string& filename)
+{
     std::ofstream file(filename);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         std::cout << "❌ Error: Could not save to file " << filename << "\n";
         return;
     }
@@ -234,7 +262,8 @@ void ConsoleInterface::saveToFile(const std::string& filename) {
     file << "Date,Location,State,GameType,BuyIn,CashOut,TaxWithheld,WithheldAmount,DocumentationNote,Notes\n";
     
     // Write sessions
-    for (const auto& session : sessions) {
+    for (const auto& session : sessions)
+    {
         file << session.toCSV() << "\n";
     }
     
@@ -242,9 +271,11 @@ void ConsoleInterface::saveToFile(const std::string& filename) {
     std::cout << "✅ Saved " << sessions.size() << " sessions to " << filename << "\n";
 }
 
-void ConsoleInterface::loadFromFile(const std::string& filename) {
+void ConsoleInterface::loadFromFile(const std::string& filename)
+{
     std::ifstream file(filename);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         std::cout << "❌ Error: Could not load from file " << filename << "\n";
         return;
     }
@@ -256,12 +287,17 @@ void ConsoleInterface::loadFromFile(const std::string& filename) {
     std::getline(file, line);
     
     int loaded = 0;
-    while (std::getline(file, line)) {
-        if (!line.empty()) {
-            try {
+    while (std::getline(file, line))
+    {
+        if (!line.empty())
+        {
+            try
+            {
                 sessions.push_back(GamblingSession::fromCSV(line));
                 loaded++;
-            } catch (const std::exception& e) {
+            }
+            catch (const std::exception& e)
+            {
                 std::cout << "Warning: Skipped invalid line: " << line << "\n";
             }
         }
@@ -273,18 +309,22 @@ void ConsoleInterface::loadFromFile(const std::string& filename) {
 
 // Helper functions implementation continues...
 
-std::string ConsoleInterface::getStringInput(const std::string& prompt) {
+std::string ConsoleInterface::getStringInput(const std::string& prompt)
+{
     std::cout << prompt;
     std::string input;
     std::getline(std::cin, input);
     return input;
 }
 
-double ConsoleInterface::getDoubleInput(const std::string& prompt) {
+double ConsoleInterface::getDoubleInput(const std::string& prompt)
+{
     double value;
-    while (true) {
+    while (true)
+    {
         std::cout << prompt;
-        if (std::cin >> value && value >= 0) {
+        if (std::cin >> value && value >= 0)
+        {
             std::cin.ignore();
             return value;
         }
@@ -294,9 +334,11 @@ double ConsoleInterface::getDoubleInput(const std::string& prompt) {
     }
 }
 
-bool ConsoleInterface::getBoolInput(const std::string& prompt) {
+bool ConsoleInterface::getBoolInput(const std::string& prompt)
+{
     std::string input;
-    while (true) {
+    while (true)
+    {
         std::cout << prompt;
         std::getline(std::cin, input);
         if (input.empty()) return false;
@@ -309,7 +351,8 @@ bool ConsoleInterface::getBoolInput(const std::string& prompt) {
     }
 }
 
-std::string ConsoleInterface::getGameType() {
+std::string ConsoleInterface::getGameType()
+{
     std::cout << "\nGame Types:\n";
     std::cout << "1. Lottery/Scratch-off\n";
     std::cout << "2. Slot Machine\n";
@@ -320,7 +363,8 @@ std::string ConsoleInterface::getGameType() {
     std::cout << "Choose game type (1-6): ";
     
     int choice = getUserChoice();
-    switch (choice) {
+    switch (choice)
+    {
         case 1: return "Lottery";
         case 2: return "Slot Machine";
         case 3: return "Poker";
@@ -331,7 +375,8 @@ std::string ConsoleInterface::getGameType() {
     }
 }
 
-std::string ConsoleInterface::getStateCode() {
+std::string ConsoleInterface::getStateCode()
+{
     std::cout << "\nCommon States:\n";
     std::cout << "1. NJ (New Jersey)  2. PA (Pennsylvania)  3. NY (New York)\n";
     std::cout << "4. FL (Florida)     5. NV (Nevada)        6. CA (California)\n";
@@ -339,7 +384,8 @@ std::string ConsoleInterface::getStateCode() {
     std::cout << "Choose state (1-7): ";
     
     int choice = getUserChoice();
-    switch (choice) {
+    switch (choice)
+    {
         case 1: return "NJ";
         case 2: return "PA";
         case 3: return "NY";
@@ -351,28 +397,33 @@ std::string ConsoleInterface::getStateCode() {
     }
 }
 
-std::string ConsoleInterface::getCurrentDate() {
+std::string ConsoleInterface::getCurrentDate()
+{
     // Simple date - in a real app you'd use proper date handling
     return "2024-01-01"; // Placeholder - user can override
 }
 
-void ConsoleInterface::clearScreen() {
+void ConsoleInterface::clearScreen()
+{
     // Simple screen clear - works on most terminals
     std::cout << "\n" << std::string(60, '=') << "\n";
 }
 
-void ConsoleInterface::pauseForUser() {
+void ConsoleInterface::pauseForUser()
+{
     std::cout << "\nPress Enter to continue...";
     std::cin.get();
 }
 
-void ConsoleInterface::showHeader(const std::string& title) {
+void ConsoleInterface::showHeader(const std::string& title)
+{
     clearScreen();
     std::cout << title << "\n";
     std::cout << std::string(title.length(), '-') << "\n\n";
 }
 
-void ConsoleInterface::showTaxRulesConfiguration() {
+void ConsoleInterface::showTaxRulesConfiguration()
+{
     showHeader("TAX RULES CONFIGURATION");
     std::cout << calculator.generateRulesReport() << "\n\n";
     
@@ -384,7 +435,8 @@ void ConsoleInterface::showTaxRulesConfiguration() {
     std::cout << "💡 TIP: Add new states or modify existing rules as needed\n";
 }
 
-void ConsoleInterface::setProfessionalMode() {
+void ConsoleInterface::setProfessionalMode()
+{
     showHeader("PROFESSIONAL GAMBLER MODE");
     std::cout << "Current mode: " << (calculator.isProfessionalMode() ? "Professional" : "Casual") << "\n\n";
     std::cout << "Professional gamblers:\n";
@@ -398,8 +450,10 @@ void ConsoleInterface::setProfessionalMode() {
     std::cout << "✅ Mode set to: " << (professional ? "Professional" : "Casual") << "\n";
 }
 
-void ConsoleInterface::clearAllSessions() {
-    if (sessions.empty()) {
+void ConsoleInterface::clearAllSessions()
+{
+    if (sessions.empty())
+    {
         std::cout << "No sessions to clear.\n";
         return;
     }
@@ -407,10 +461,13 @@ void ConsoleInterface::clearAllSessions() {
     std::cout << "This will delete all " << sessions.size() << " sessions.\n";
     bool confirm = getBoolInput("Are you sure? (y/n): ");
     
-    if (confirm) {
+    if (confirm)
+    {
         sessions.clear();
         std::cout << "✅ All sessions cleared.\n";
-    } else {
+    }
+    else
+    {
         std::cout << "Cancelled.\n";
     }
 }

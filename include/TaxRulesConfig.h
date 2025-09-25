@@ -13,7 +13,8 @@ struct FederalTaxRules {
     std::map<std::string, double> withholdingThresholds;  // game_type -> amount
     
     FederalTaxRules() : taxYear(2024), standardDeduction(14600), itemizationThreshold(1000),
-                       allowsLossDeduction(true), lossDeductionLimit(1.0) {
+                       allowsLossDeduction(true), lossDeductionLimit(1.0)
+    {
         // Default withholding thresholds
         withholdingThresholds["Lottery"] = 5000.0;
         withholdingThresholds["Slot Machine"] = 1200.0;
@@ -39,7 +40,8 @@ struct StateTaxRule {
                     requiresNonResidentReturn(false), withholdingThreshold(5000.0) {}
 };
 
-class TaxRulesConfig {
+class TaxRulesConfig
+{
 private:
     FederalTaxRules federalRules;
     std::map<std::string, StateTaxRule> stateRules;

@@ -1,7 +1,8 @@
 #include <iostream>
 #include "ConsoleInterface.h"
 
-int main() {
+int main()
+{
     ConsoleInterface interface;
     interface.run();
     return 0;
