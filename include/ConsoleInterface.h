@@ -43,6 +43,7 @@ public:
 private:
     // Input helpers
     std::string getStringInput(const std::string& prompt);
+    std::string getDateInput(const std::string& prompt);
     double getDoubleInput(const std::string& prompt);
     bool getBoolInput(const std::string& prompt);
     std::string getGameType();

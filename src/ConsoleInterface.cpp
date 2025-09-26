@@ -115,11 +115,7 @@ void ConsoleInterface::addSingleSession()
 {
     showHeader("ADD GAMBLING SESSION");
     
-    std::string date = getStringInput("Date (MM-DD-YYYY) [Enter for today]: ");
-    if (date.empty())
-    {
-        date = getCurrentDate();
-    }
+    std::string date = getDateInput("Date (MM-DD-YYYY) [Enter for today]: ");
     
     std::string location = getStringInput("Location (casino, store, etc.): ");
     std::string state = getStateCode();
@@ -159,11 +155,7 @@ void ConsoleInterface::addBulkLosingSessions()
     showHeader("BULK ADD LOSING TICKETS");
     std::cout << "Quick entry for multiple losing tickets/sessions\n\n";
     
-    std::string defaultDate = getStringInput("Default date (MM-DD-YYYY) [Enter for today]: ");
-    if (defaultDate.empty())
-    {
-        defaultDate = getCurrentDate();
-    }
+    std::string defaultDate = getDateInput("Default date (MM-DD-YYYY) [Enter for today]: ");
     
     std::string defaultLocation = getStringInput("Default location: ");
     std::string defaultState = getStateCode();
@@ -329,6 +321,30 @@ std::string ConsoleInterface::getStringInput(const std::string& prompt)
     std::string input;
     std::getline(std::cin, input);
     return input;
+}
+
+std::string ConsoleInterface::getDateInput(const std::string& prompt)
+{
+    std::string input;
+    while (true)
+    {
+        std::cout << prompt;
+        std::getline(std::cin, input);
+
+        // Allow empty input for default date
+        if (input.empty())
+        {
+            return getCurrentDate();
+        }
+
+        // Validate the entered date
+        if (isValidDate(input))
+        {
+            return input;
+        }
+
+        std::cout << "Invalid date format. Please enter date as MM-DD-YYYY (e.g., 01-15-2024).\n";
+    }
 }
 
 double ConsoleInterface::getDoubleInput(const std::string& prompt)
