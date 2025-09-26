@@ -6,7 +6,7 @@
 
 class GamblingSession {
 private:
-    std::string date;           // YYYY-MM-DD format
+    std::string date;           // MM-DD-YYYY format
     std::string location;       // Casino name, online site, etc.
     std::string state;          // State where gambling occurred (critical for taxes)
     std::string gameType;       // Lottery, Slots, Poker, Sports Betting, etc.

@@ -4,9 +4,15 @@
 #include <fstream>
 #include <sstream>
 #include <limits>
+#include <chrono>
+#include <ctime>
 
 ConsoleInterface::ConsoleInterface() : calculator(false)
 {
+    // Check if user profile exists, run setup wizard if needed
+    if (!userProfile.hasProfile()) {
+        userProfile.runSetupWizard();
+    }
 }
 
 void ConsoleInterface::run()
@@ -44,12 +50,18 @@ void ConsoleInterface::run()
                 loadFromFile("gambling_sessions.csv");
                 break;
             case 8:
-                showTaxRulesConfiguration();    // <-- CHANGE THIS LINE
+                showUserProfile();
                 break;
             case 9:
-                setProfessionalMode();
+                editUserProfile();
                 break;
             case 10:
+                showTaxRulesConfiguration();
+                break;
+            case 11:
+                setProfessionalMode();
+                break;
+            case 12:
                 clearAllSessions();
                 break;
             case 0:
@@ -77,9 +89,11 @@ void ConsoleInterface::showMainMenu()
     std::cout << "5.  Show Documentation Checklist\n";
     std::cout << "6.  Save Sessions to File\n";
     std::cout << "7.  Load Sessions from File\n";
-    std::cout << "8.  View Tax Rules & Configuration\n";    // <-- CHANGE THIS LINE
-    std::cout << "9.  Toggle Professional Gambler Mode\n";
-    std::cout << "10. Clear All Sessions\n";
+    std::cout << "8.  View User Profile\n";
+    std::cout << "9.  Edit User Profile\n";
+    std::cout << "10. View Tax Rules & Configuration\n";
+    std::cout << "11. Toggle Professional Gambler Mode\n";
+    std::cout << "12. Clear All Sessions\n";
     std::cout << "0.  Exit\n\n";
     std::cout << "Choose an option: ";
 }
@@ -101,7 +115,7 @@ void ConsoleInterface::addSingleSession()
 {
     showHeader("ADD GAMBLING SESSION");
     
-    std::string date = getStringInput("Date (YYYY-MM-DD) [Enter for today]: ");
+    std::string date = getStringInput("Date (MM-DD-YYYY) [Enter for today]: ");
     if (date.empty())
     {
         date = getCurrentDate();
@@ -145,7 +159,7 @@ void ConsoleInterface::addBulkLosingSessions()
     showHeader("BULK ADD LOSING TICKETS");
     std::cout << "Quick entry for multiple losing tickets/sessions\n\n";
     
-    std::string defaultDate = getStringInput("Default date (YYYY-MM-DD) [Enter for today]: ");
+    std::string defaultDate = getStringInput("Default date (MM-DD-YYYY) [Enter for today]: ");
     if (defaultDate.empty())
     {
         defaultDate = getCurrentDate();
@@ -377,30 +391,93 @@ std::string ConsoleInterface::getGameType()
 
 std::string ConsoleInterface::getStateCode()
 {
-    std::cout << "\nCommon States:\n";
-    std::cout << "1. NJ (New Jersey)  2. PA (Pennsylvania)  3. NY (New York)\n";
-    std::cout << "4. FL (Florida)     5. NV (Nevada)        6. CA (California)\n";
-    std::cout << "7. Other state\n";
-    std::cout << "Choose state (1-7): ";
-    
+    std::string homeState = userProfile.getHomeState();
+
+    std::cout << "\nState for this session:\n";
+    std::cout << "1. Use home state (" << homeState << ")\n";
+    std::cout << "2. NJ (New Jersey)  3. PA (Pennsylvania)  4. NY (New York)\n";
+    std::cout << "5. FL (Florida)     6. NV (Nevada)        7. CA (California)\n";
+    std::cout << "8. Other state\n";
+    std::cout << "Choose state (1-8): ";
+
     int choice = getUserChoice();
     switch (choice)
     {
-        case 1: return "NJ";
-        case 2: return "PA";
-        case 3: return "NY";
-        case 4: return "FL";
-        case 5: return "NV";
-        case 6: return "CA";
-        case 7: return getStringInput("Enter state code (e.g., TX, OH): ");
-        default: return "NJ";
+        case 1: return homeState;
+        case 2: return "NJ";
+        case 3: return "PA";
+        case 4: return "NY";
+        case 5: return "FL";
+        case 6: return "NV";
+        case 7: return "CA";
+        case 8: return getStringInput("Enter state code (e.g., TX, OH): ");
+        default: return homeState;
     }
 }
 
 std::string ConsoleInterface::getCurrentDate()
 {
-    // Simple date - in a real app you'd use proper date handling
-    return "2024-01-01"; // Placeholder - user can override
+    std::time_t now = std::time(nullptr);
+
+    // If timezone is not set in environment, adjust for user's configured timezone
+    if (!getenv("TZ")) {
+        std::string userTz = userProfile.getTimezone();
+
+        // Simple timezone offset adjustments (this is a basic implementation)
+        // In production, you'd want a proper timezone library
+        if (userTz == "America/New_York") {
+            now -= 18000; // UTC-5 (EST)
+        } else if (userTz == "America/Chicago") {
+            now -= 21600; // UTC-6 (CST)
+        } else if (userTz == "America/Denver") {
+            now -= 25200; // UTC-7 (MST)
+        } else if (userTz == "America/Los_Angeles") {
+            now -= 28800; // UTC-8 (PST)
+        } else if (userTz == "America/Phoenix") {
+            now -= 25200; // UTC-7 (no DST)
+        } else if (userTz == "America/Anchorage") {
+            now -= 32400; // UTC-9 (AKST)
+        } else if (userTz == "Pacific/Honolulu") {
+            now -= 36000; // UTC-10 (HST)
+        }
+    }
+
+    std::tm* local_tm = std::localtime(&now);
+
+    std::ostringstream oss;
+    oss << std::setfill('0') << std::setw(2) << (local_tm->tm_mon + 1) << "-"
+        << std::setfill('0') << std::setw(2) << local_tm->tm_mday << "-"
+        << (local_tm->tm_year + 1900);
+    return oss.str();
+}
+
+bool ConsoleInterface::isValidDate(const std::string& date)
+{
+    if (date.length() != 10) return false;
+    if (date[2] != '-' || date[5] != '-') return false;
+
+    for (int i = 0; i < 10; i++) {
+        if (i == 2 || i == 5) continue;
+        if (!std::isdigit(date[i])) return false;
+    }
+
+    int month = std::stoi(date.substr(0, 2));
+    int day = std::stoi(date.substr(3, 2));
+    int year = std::stoi(date.substr(6, 4));
+
+    if (year < 1900 || year > 2100) return false;
+    if (month < 1 || month > 12) return false;
+    if (day < 1 || day > 31) return false;
+
+    // Basic month-specific day validation
+    if (month == 2) {
+        bool isLeap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+        if (day > (isLeap ? 29 : 28)) return false;
+    } else if (month == 4 || month == 6 || month == 9 || month == 11) {
+        if (day > 30) return false;
+    }
+
+    return true;
 }
 
 void ConsoleInterface::clearScreen()
@@ -469,5 +546,28 @@ void ConsoleInterface::clearAllSessions()
     else
     {
         std::cout << "Cancelled.\n";
+    }
+}
+
+void ConsoleInterface::showUserProfile()
+{
+    showHeader("USER PROFILE");
+    userProfile.displayCurrentProfile();
+    std::cout << "\nNote: Your profile settings affect tax calculations and date handling.\n";
+    std::cout << "Use 'Edit User Profile' from the main menu to modify these settings.\n";
+}
+
+void ConsoleInterface::editUserProfile()
+{
+    showHeader("EDIT USER PROFILE");
+    std::cout << "This will launch the setup wizard to reconfigure your profile.\n";
+    std::cout << "Your current settings will be overwritten.\n\n";
+
+    bool confirm = getBoolInput("Continue with profile setup? (y/n): ");
+    if (confirm) {
+        userProfile.runSetupWizard();
+        std::cout << "\n✅ Profile updated successfully!\n";
+    } else {
+        std::cout << "Profile edit cancelled.\n";
     }
 }

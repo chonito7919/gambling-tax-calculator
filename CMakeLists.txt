@@ -13,6 +13,7 @@ add_executable(gambling-calc
     src/SessionDatabase.cpp
     src/TaxCalculator.cpp
     src/TaxRulesConfig.cpp
+    src/UserProfile.cpp
 )
 
 if(WIN32)
@@ -20,3 +21,10 @@ if(WIN32)
 else()
     target_link_libraries(gambling-calc stdc++fs)
 endif()
+
+# Copy config directory to build directory
+add_custom_command(TARGET gambling-calc POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/config $<TARGET_FILE_DIR:gambling-calc>/config
+    COMMENT "Copying config files to build directory"
+)

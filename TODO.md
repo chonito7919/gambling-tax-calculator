@@ -5,14 +5,13 @@
 ### Core Functionality
 - [ ] Add unit tests for tax calculation logic
 - [ ] Implement input validation for all user inputs
-- [ ] Add date validation (ensure format YYYY-MM-DD)
+- [ ] Add date validation (ensure format MM-DD-YYYY)
 - [ ] Implement proper date handling (replace placeholder getCurrentDate())
 - [ ] Add session editing capability (modify existing sessions)
 - [ ] Add session deletion (delete individual sessions)
 
 ### Tax Rules & Accuracy
 - [ ] Verify all 50 state tax rates with 2024-2025 official sources
-- [ ] Add historical federal rules (pre-2024)
 - [ ] Implement 2026 federal rule changes (90% loss deduction)
 - [ ] Add support for different tax filing statuses (single, married, HOH)
 - [ ] Implement AMT (Alternative Minimum Tax) considerations

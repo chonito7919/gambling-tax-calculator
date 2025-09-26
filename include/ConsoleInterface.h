@@ -1,6 +1,7 @@
 #pragma once
 #include "GamblingSession.h"
 #include "TaxCalculator.h"
+#include "UserProfile.h"
 #include <vector>
 #include <string>
 
@@ -8,6 +9,7 @@ class ConsoleInterface {
 private:
     std::vector<GamblingSession> sessions;
     TaxCalculator calculator;
+    UserProfile userProfile;
     
 public:
     ConsoleInterface();
@@ -35,6 +37,8 @@ public:
     // Settings
     void showTaxRulesConfiguration();
     void setProfessionalMode();
+    void showUserProfile();
+    void editUserProfile();
     
 private:
     // Input helpers
@@ -44,6 +48,7 @@ private:
     std::string getGameType();
     std::string getStateCode();
     std::string getCurrentDate();  // Helper for default dates
+    bool isValidDate(const std::string& date);  // Validate MM-DD-YYYY format
     
     // Display helpers
     void clearScreen();
