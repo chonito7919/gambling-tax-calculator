@@ -113,6 +113,8 @@ gambling-tax-calculator/
 ├── build-windows/          # Windows build directory
 ├── CMakeLists.txt          # CMake build configuration
 ├── toolchain-windows.cmake # Windows cross-compilation toolchain
+├── STYLE_GUIDE.md          # C++ coding standards and style guide
+├── TODO.md                 # Project roadmap and task list
 └── README.md              # This file
 ```
 
@@ -148,7 +150,13 @@ The calculator provides IRS-compliant documentation reminders:
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
+This project follows strict coding standards to ensure consistency and maintainability:
+
+- **Code Style**: All code must follow the [Allman bracket style](STYLE_GUIDE.md)
+- **Formatting**: 4 spaces for indentation, consistent naming conventions
+- **Review Process**: All contributions are reviewed for style compliance
+
+See [STYLE_GUIDE.md](STYLE_GUIDE.md) for detailed coding standards and [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
 ## License
 
