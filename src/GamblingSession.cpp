@@ -1,6 +1,8 @@
 #include "../include/GamblingSession.h"
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
+#include <cctype>
 
 // Default constructor
 GamblingSession::GamblingSession()
@@ -109,12 +111,51 @@ GamblingSession GamblingSession::fromCSV(const std::string& csvLine)
     std::getline(iss, withheldAmountStr, ',');
     std::getline(iss, documentationNote, ',');
     std::getline(iss, notes);
-    
+
+    // Validate date format before creating session
+    if (!isValidDate(date))
+    {
+        throw std::invalid_argument("Invalid date format in CSV: " + date + " (expected MM-DD-YYYY)");
+    }
+
     double buyIn = std::stod(buyInStr);
     double cashOut = std::stod(cashOutStr);
     bool taxWithheld = (taxWithheldStr == "1");
     double withheldAmount = std::stod(withheldAmountStr);
     
-    return GamblingSession(date, location, state, gameType, buyIn, cashOut, 
+    return GamblingSession(date, location, state, gameType, buyIn, cashOut,
                           taxWithheld, withheldAmount, documentationNote, notes);
+}
+
+bool GamblingSession::isValidDate(const std::string& date)
+{
+    if (date.length() != 10) return false;
+    if (date[2] != '-' || date[5] != '-') return false;
+
+    for (int i = 0; i < 10; i++)
+    {
+        if (i == 2 || i == 5) continue;
+        if (!std::isdigit(date[i])) return false;
+    }
+
+    int month = std::stoi(date.substr(0, 2));
+    int day = std::stoi(date.substr(3, 2));
+    int year = std::stoi(date.substr(6, 4));
+
+    if (year < 1900 || year > 2100) return false;
+    if (month < 1 || month > 12) return false;
+    if (day < 1 || day > 31) return false;
+
+    // Basic month-specific day validation
+    if (month == 2)
+    {
+        bool isLeap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+        if (day > (isLeap ? 29 : 28)) return false;
+    }
+    else if (month == 4 || month == 6 || month == 9 || month == 11)
+    {
+        if (day > 30) return false;
+    }
+
+    return true;
 }

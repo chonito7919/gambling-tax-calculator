@@ -62,4 +62,7 @@ public:
     
     // For file I/O
     static GamblingSession fromCSV(const std::string& csvLine);
+
+    // Date validation utility
+    static bool isValidDate(const std::string& date);
 };

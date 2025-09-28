@@ -6,6 +6,10 @@
 #include <limits>
 #include <chrono>
 #include <ctime>
+#include <set>
+#include <algorithm>
+#include <cctype>
+#include <cmath>
 
 ConsoleInterface::ConsoleInterface() : calculator(false)
 {
@@ -117,7 +121,7 @@ void ConsoleInterface::addSingleSession()
     
     std::string date = getDateInput("Date (MM-DD-YYYY) [Enter for today]: ");
     
-    std::string location = getStringInput("Location (casino, store, etc.): ");
+    std::string location = getLocationInput("Location (casino, store, etc.): ");
     std::string state = getStateCode();
     std::string gameType = getGameType();
     
@@ -157,7 +161,7 @@ void ConsoleInterface::addBulkLosingSessions()
     
     std::string defaultDate = getDateInput("Default date (MM-DD-YYYY) [Enter for today]: ");
     
-    std::string defaultLocation = getStringInput("Default location: ");
+    std::string defaultLocation = getLocationInput("Default location: ");
     std::string defaultState = getStateCode();
     std::string defaultGameType = getGameType();
     
@@ -323,6 +327,54 @@ std::string ConsoleInterface::getStringInput(const std::string& prompt)
     return input;
 }
 
+std::string ConsoleInterface::getLocationInput(const std::string& prompt)
+{
+    std::string input;
+    const size_t MAX_LENGTH = 100;  // Reasonable maximum for location names
+
+    while (true)
+    {
+        std::cout << prompt;
+        std::getline(std::cin, input);
+
+        // Trim whitespace
+        input.erase(0, input.find_first_not_of(" \t\r\n"));
+        input.erase(input.find_last_not_of(" \t\r\n") + 1);
+
+        if (input.empty())
+        {
+            std::cout << "Location cannot be empty. Please enter a location name.\n";
+            continue;
+        }
+
+        if (input.length() > MAX_LENGTH)
+        {
+            std::cout << "Location name too long (max " << MAX_LENGTH
+                     << " characters). Please enter a shorter name.\n";
+            continue;
+        }
+
+        // Check for reasonable characters (letters, numbers, spaces, basic punctuation)
+        bool hasValidChars = true;
+        for (char c : input)
+        {
+            if (!std::isalnum(c) && c != ' ' && c != '-' && c != '\'' && c != '.' && c != '&' && c != ',')
+            {
+                hasValidChars = false;
+                break;
+            }
+        }
+
+        if (!hasValidChars)
+        {
+            std::cout << "Location contains invalid characters. Please use only letters, numbers, spaces, and basic punctuation.\n";
+            continue;
+        }
+
+        return input;
+    }
+}
+
 std::string ConsoleInterface::getDateInput(const std::string& prompt)
 {
     std::string input;
@@ -350,15 +402,40 @@ std::string ConsoleInterface::getDateInput(const std::string& prompt)
 double ConsoleInterface::getDoubleInput(const std::string& prompt)
 {
     double value;
+    const double MAX_AMOUNT = 999999.99;  // Reasonable maximum for gambling amounts
+
     while (true)
     {
         std::cout << prompt;
-        if (std::cin >> value && value >= 0)
+        if (std::cin >> value)
         {
             std::cin.ignore();
-            return value;
+
+            if (value < 0)
+            {
+                std::cout << "Amount cannot be negative. Please enter a positive number.\n";
+                continue;
+            }
+
+            if (value > MAX_AMOUNT)
+            {
+                std::cout << "Amount too large (max $" << std::fixed << std::setprecision(2)
+                         << MAX_AMOUNT << "). Please enter a reasonable amount.\n";
+                continue;
+            }
+
+            // Check for excessive decimal places (more than 2)
+            double rounded = std::round(value * 100.0) / 100.0;
+            if (std::abs(value - rounded) > 0.001)
+            {
+                std::cout << "Please enter amount with at most 2 decimal places (e.g., 123.45).\n";
+                continue;
+            }
+
+            return rounded;  // Return rounded value for currency consistency
         }
-        std::cout << "Please enter a valid positive number.\n";
+
+        std::cout << "Please enter a valid number.\n";
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
@@ -426,7 +503,21 @@ std::string ConsoleInterface::getStateCode()
         case 5: return "FL";
         case 6: return "NV";
         case 7: return "CA";
-        case 8: return getStringInput("Enter state code (e.g., TX, OH): ");
+        case 8:
+        {
+            std::string stateCode;
+            while (true)
+            {
+                stateCode = getStringInput("Enter state code (e.g., TX, OH): ");
+                if (isValidStateCode(stateCode))
+                {
+                    // Convert to uppercase for consistency
+                    std::transform(stateCode.begin(), stateCode.end(), stateCode.begin(), ::toupper);
+                    return stateCode;
+                }
+                std::cout << "Invalid state code '" << stateCode << "'. Please enter a valid 2-letter US state code.\n";
+            }
+        }
         default: return homeState;
     }
 }
@@ -494,6 +585,25 @@ bool ConsoleInterface::isValidDate(const std::string& date)
     }
 
     return true;
+}
+
+bool ConsoleInterface::isValidStateCode(const std::string& stateCode)
+{
+    // List of all 50 US states + DC (extracted from state_rules.cfg)
+    static const std::set<std::string> validStates = {
+        "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+        "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+        "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+        "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+        "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+        "DC"  // Washington D.C.
+    };
+
+    // Convert to uppercase for case-insensitive comparison
+    std::string upper = stateCode;
+    std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
+
+    return validStates.find(upper) != validStates.end();
 }
 
 void ConsoleInterface::clearScreen()

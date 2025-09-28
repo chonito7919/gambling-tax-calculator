@@ -43,6 +43,7 @@ public:
 private:
     // Input helpers
     std::string getStringInput(const std::string& prompt);
+    std::string getLocationInput(const std::string& prompt);  // Validated location input
     std::string getDateInput(const std::string& prompt);
     double getDoubleInput(const std::string& prompt);
     bool getBoolInput(const std::string& prompt);
@@ -50,6 +51,7 @@ private:
     std::string getStateCode();
     std::string getCurrentDate();  // Helper for default dates
     bool isValidDate(const std::string& date);  // Validate MM-DD-YYYY format
+    bool isValidStateCode(const std::string& stateCode);  // Validate 2-letter state codes
     
     // Display helpers
     void clearScreen();

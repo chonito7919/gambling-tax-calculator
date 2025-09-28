@@ -4,8 +4,8 @@
 
 ### Core Functionality
 - [ ] Add unit tests for tax calculation logic
-- [ ] Implement input validation for all user inputs
-- [x] **Add date validation (ensure format MM-DD-YYYY)** - *Function exists but not used in input flow*
+- [x] **Implement input validation for all user inputs** - *COMPLETED: State codes, amounts, locations, dates all validated*
+- [x] **Add date validation (ensure format MM-DD-YYYY)** - *COMPLETED: Fully integrated in both user input and CSV loading*
 - [x] **Implement proper date handling (COMPLETED)** - Full timezone-aware getCurrentDate() implementation
 - [ ] Add session editing capability (modify existing sessions)
 - [ ] Add session deletion (delete individual sessions)
